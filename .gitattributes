@@ -1,0 +1,16 @@
+# Shell scripts luôn là LF
+*.sh text eol=lf
+
+# Docker
+Dockerfile* text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# SQL
+*.sql text eol=lf
+
+
+
+
+
+

@@ -38,13 +38,6 @@ function isValidMime(fileType, mime) {
   return false
 }
 
-function sanitizeSubPath(str = '') {
-  return str
-    .replace(/[^a-zA-Z0-9/_-]/g, '')
-    .replace(/\.\./g, '')
-    .replace(/^\/+|\/+$/g, '')
-}
-
 function safeRemoveFile(filePath) {
   if (!filePath || !fs.existsSync(filePath)) return
   fs.unlinkSync(filePath)
@@ -53,11 +46,9 @@ function safeRemoveFile(filePath) {
 app.use('/uploads', express.static(UPLOAD_ROOT))
 
 const storage = multer.diskStorage({
-  destination(req, _file, cb) {
-    const subPath = sanitizeSubPath(req.body.sub_path)
-    const dir = path.join(UPLOAD_ROOT, subPath)
-    fs.mkdirSync(dir, { recursive: true })
-    cb(null, dir)
+  destination(_req, _file, cb) {
+    fs.mkdirSync(UPLOAD_ROOT, { recursive: true })
+    cb(null, UPLOAD_ROOT)
   },
 
   filename(_req, file, cb) {
@@ -133,11 +124,9 @@ app.post('/upload', (req, res) => {
         })
       }
 
-      const subPath = sanitizeSubPath(req.body.sub_path)
-
       return res.json({
         file_name: req.file.filename,
-        file_path: path.posix.join('/uploads', subPath, req.file.filename),
+        file_path: path.posix.join('/uploads', req.file.filename),
         mime_type: req.file.mimetype,
         file_size: req.file.size,
       })

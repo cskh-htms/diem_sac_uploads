@@ -12,7 +12,7 @@ RUN npm ci --omit=dev || npm install --omit=dev
 
 COPY server.js ./
 
-RUN mkdir -p /data/uploads
+RUN mkdir -p /app/uploads
 
 EXPOSE 4000
 

@@ -5,6 +5,7 @@ import fs from 'fs'
 
 const app = express()
 const PORT = 4000
+const UPLOAD_ROOT = process.env.UPLOAD_ROOT || '/app/uploads'
 
 const IMAGE_MIME = [
   'image/jpeg',
@@ -49,12 +50,12 @@ function safeRemoveFile(filePath) {
   fs.unlinkSync(filePath)
 }
 
-app.use('/uploads', express.static('/data/uploads'))
+app.use('/uploads', express.static(UPLOAD_ROOT))
 
 const storage = multer.diskStorage({
   destination(req, _file, cb) {
     const subPath = sanitizeSubPath(req.body.sub_path)
-    const dir = path.join('/data/uploads', subPath)
+    const dir = path.join(UPLOAD_ROOT, subPath)
     fs.mkdirSync(dir, { recursive: true })
     cb(null, dir)
   },

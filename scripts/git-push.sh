@@ -1,51 +1,68 @@
 #!/bin/bash
+set -e
 
 # ===============================
-# CONFIG
+# Config
 # ===============================
 REPO_DIR="$HOME/Desktop/diem_sac_uploads"
 GIT_NAME="cskh-htms"
 GIT_EMAIL="cskh.htms.vn@gmail.com"
-BRANCH="main"   # đổi thành master nếu repo của bạn dùng master
+BRANCH="main"
+AVERSIONS_DIR="$REPO_DIR/.aversions"
+LATEST_AVERSION_FILE=""
 
 # ===============================
-# SET GIT USER (GLOBAL)
+# Set git user
 # ===============================
 git config --global user.name "$GIT_NAME"
 git config --global user.email "$GIT_EMAIL"
 
 # ===============================
-# CHECK DIR
+# Check dir
 # ===============================
 if [ ! -d "$REPO_DIR" ]; then
-  echo "❌ Không tìm thấy thư mục: $REPO_DIR"
+  echo "Khong tim thay thu muc: $REPO_DIR"
   exit 1
 fi
 
 cd "$REPO_DIR" || exit 1
 
-echo "📂 Repo: $(pwd)"
+echo "Repo: $(pwd)"
 
 # ===============================
-# TIME FORMAT
+# Resolve aversion
+# ===============================
+if [ -d "$AVERSIONS_DIR" ]; then
+  LATEST_AVERSION_FILE="$(find "$AVERSIONS_DIR" -maxdepth 1 -type f -printf '%T@ %f\n' | sort -nr | head -n 1 | cut -d' ' -f2-)"
+fi
+
+# ===============================
+# Time format
 # ===============================
 CURRENT_DATE=$(date "+%Y-%m-%d %H:%M")
+COMMIT_PREFIX="update"
+
+if [ -n "$LATEST_AVERSION_FILE" ]; then
+  COMMIT_PREFIX="update ${LATEST_AVERSION_FILE}"
+fi
+
+COMMIT_MESSAGE="${COMMIT_PREFIX} ${CURRENT_DATE}"
 
 # ===============================
-# GIT ACTIONS
+# Git actions
 # ===============================
-echo "➕ git add ."
+echo "git add ."
 git add .
 
-echo "📝 git commit"
-git commit -m "update $CURRENT_DATE" || echo "ℹ️ Không có thay đổi để commit"
+echo "git commit"
+git commit -m "$COMMIT_MESSAGE" || echo "Khong co thay doi de commit"
 
-echo "🚀 git push (SSH)"
+echo "git push (SSH)"
 git push origin "$BRANCH"
 
 if [ $? -ne 0 ]; then
-  echo "❌ Push thất bại"
+  echo "Push that bai"
   exit 1
 fi
 
-echo "✅ Push thành công!"
+echo "Push thanh cong!"
